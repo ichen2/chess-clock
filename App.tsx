@@ -11,11 +11,15 @@
 import React, { useEffect, useState } from 'react';
 import {
   Pressable,
+  TouchableHighlight,
+  TouchableOpacity,
   StyleSheet,
   Text,
   View,
   Image,
 } from 'react-native';
+
+const Sound = require('react-native-sound')
 
 const colors = {
   white: "#FFFFFF",
@@ -50,8 +54,26 @@ export default function App() {
   const [turn, setTurn] = useState<Turn>(Turn.NoOne)
   const [timer, setTimer] = useState<NodeJS.Timeout>()
 
+  const tick = new Sound('tick.wav', Sound.MAIN_BUNDLE, (error: string) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+  });
+  
+  const playSound = () => {
+    tick.play((success: boolean) => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    })
+  }
+
   const onBlackButtonPress = () => {
     if(turn === Turn.NoOne || turn === Turn.PlayerTwo) {
+      playSound()
       setTurn(Turn.PlayerOne)
       if(timer) { clearInterval(timer) }
       setTimer(
@@ -72,6 +94,7 @@ export default function App() {
 
   const onWhiteButtonPress = () => {
     if(turn === Turn.NoOne || turn === Turn.PlayerOne) {
+      playSound()
       setTurn(Turn.PlayerTwo)
       if(timer) { clearInterval(timer) }
       setTimer(
@@ -104,29 +127,29 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.blackButton}
+      <TouchableOpacity activeOpacity={.9} style={styles.blackButton}
         onPress={onBlackButtonPress}>
         <Text style={styles.blackButtonText}>
           {getTime(countTwo)}
         </Text>
-      </Pressable>
+      </TouchableOpacity>
       <View style={styles.menuBar}>
-        <Pressable style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem}>
           <Image style={{flex: .5, resizeMode: 'contain'}} source={require('./assets/settings.png')} />
-        </Pressable>
-        <Pressable style={styles.menuItem} onPress={pause}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={pause}>
           <Image style={{flex: .5, resizeMode: 'contain'}} source={require('./assets/pause.png')} />
-        </Pressable>
-        <Pressable style={styles.menuItem} onPress={restart}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={restart}>
           <Image style={{flex: .5, resizeMode: 'contain'}} source={require('./assets/restart.png')} />
-        </Pressable>
+        </TouchableOpacity>
       </View>
-      <Pressable style={styles.whiteButton}
+      <TouchableOpacity activeOpacity={.1} style={styles.whiteButton}
         onPress={onWhiteButtonPress}>
         <Text style={styles.whiteButtonText}>
           {getTime(countOne)}
         </Text>
-      </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
